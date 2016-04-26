@@ -9,10 +9,16 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.maps.android.clustering.ClusterManager;
+import com.plurry.googlemapclusteringexample.model.House;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+
+    private static final double SEOUL_LAT = 37.5449546;
+    private static final double SEOUL_LNG = 126.9647997;
+    private static final LatLng Seoul = new LatLng(SEOUL_LAT, SEOUL_LNG);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,22 +31,23 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        // Add a marker in Seoul and move the camera
+        mMap.addMarker(new MarkerOptions().position(Seoul));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Seoul, 14.0f));
+
+        // 클러스터 매니저를 생성
+        ClusterManager<House> mClusterManager = new ClusterManager<>(this, mMap);
+        mMap.setOnCameraChangeListener(mClusterManager);
+
+        for(int i=0; i<10; i++) {
+            double lat = SEOUL_LAT + (i / 200d);
+            double lng = SEOUL_LNG + (i / 200d);
+            mClusterManager.addItem(new House(new LatLng(lat, lng), "House"+i));
+        }
     }
+
 }
